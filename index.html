@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ranking-Diskussion: Zeitmanagement</title>
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --card: #ffffff;
+      --text: #222222;
+      --muted: #6b635a;
+      --accent: #c88a1d;
+      --accent-dark: #8d5e0e;
+      --line: #e2d8ca;
+      --soft: #fff4df;
+      --green: #e9f6ed;
+      --red: #fbe9e6;
+      --blue: #e9f1fb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    header {
+      background: linear-gradient(135deg, #fff4df, #f7dfb2);
+      border-bottom: 1px solid var(--line);
+      padding: 1.2rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 0.4rem;
+      font-size: clamp(1.5rem, 3vw, 2.4rem);
+      line-height: 1.15;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .progress-wrap {
+      margin-top: 1rem;
+      background: #fff;
+      border-radius: 999px;
+      height: 12px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.25s ease;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.2rem;
+    }
+
+    .page {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: clamp(1rem, 3vw, 2rem);
+      box-shadow: 0 10px 25px rgba(60, 45, 20, 0.08);
+      min-height: 62vh;
+    }
+
+    .page.active {
+      display: block;
+      animation: fade 0.2s ease;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+    }
+
+    h3 {
+      margin-bottom: 0.4rem;
+    }
+
+    .box {
+      background: var(--soft);
+      border-left: 6px solid var(--accent);
+      padding: 1rem;
+      border-radius: 14px;
+      margin: 1rem 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .method-card, .phrase-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1rem;
+      background: #fff;
+    }
+
+    .method-card h3, .phrase-card h3 {
+      margin-top: 0;
+    }
+
+    .flip-card {
+      min-height: 250px;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 250px;
+      transition: transform 0.65s ease;
+      transform-style: preserve-3d;
+    }
+
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-card-front,
+    .flip-card-back {
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1rem;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      box-shadow: 0 8px 18px rgba(60, 45, 20, 0.08);
+    }
+
+    .flip-card-front {
+      background: linear-gradient(135deg, #fff4df, #f7dfb2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .flip-card-back {
+      background: #fff;
+      transform: rotateY(180deg);
+      overflow-y: auto;
+    }
+
+    .flip-card-back h3 {
+      margin-top: 0;
+    }
+
+    .role-number {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--accent-dark);
+      margin-bottom: 0.7rem;
+    }
+
+    .role-hint {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #fff;
+      background: var(--accent-dark);
+      border-radius: 999px;
+      padding: 0.2rem 0.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .advantages {
+      background: var(--green);
+      border-radius: 12px;
+      padding: 0.75rem;
+      margin: 0.6rem 0;
+    }
+
+    .disadvantages {
+      background: var(--red);
+      border-radius: 12px;
+      padding: 0.75rem;
+      margin: 0.6rem 0;
+    }
+
+    ul {
+      margin: 0.4rem 0 0.2rem 1.1rem;
+      padding: 0;
+    }
+
+    .task-list li {
+      margin-bottom: 0.5rem;
+    }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.7rem;
+      font: inherit;
+      background: #fffdfa;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .ranking-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      background: #fff;
+      overflow: hidden;
+      border-radius: 14px;
+    }
+
+    .ranking-table th,
+    .ranking-table td {
+      border: 1px solid var(--line);
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    .ranking-table th {
+      background: var(--blue);
+    }
+
+    .nav {
+      max-width: 1100px;
+      margin: 1rem auto 2rem;
+      padding: 0 1.2rem;
+      display: flex;
+      gap: 0.75rem;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      padding: 0.75rem 1.1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    button.secondary {
+      background: #fff;
+      color: var(--accent-dark);
+      border: 1px solid var(--line);
+    }
+
+    button.secondary:hover {
+      background: var(--soft);
+    }
+
+    .page-indicator {
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .hidden-print-note {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .timer {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--blue);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.45rem 0.8rem;
+      font-weight: 700;
+      margin: 0.5rem 0 1rem;
+    }
+
+    @media print {
+      header, .nav {
+        display: none;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      main {
+        max-width: none;
+        padding: 0;
+      }
+
+      .page {
+        display: block !important;
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+        min-height: auto;
+        page-break-after: always;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>Ranking-Diskussion: Welche Zeitmanagement-Methode ist die beste?</h1>
+      <p class="subtitle">Gruppenaufgabe mit geheimen Rollen, Argumentation und gemeinsamem Ranking</p>
+      <div class="progress-wrap" aria-label="Fortschritt">
+        <div class="progress" id="progress"></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page active">
+      <h2>Schritt 1: Ziel der Aufgabe</h2>
+      <div class="box">
+        <p><strong>Ziel:</strong> Diskutieren Sie in Ihrer Gruppe, welche Zeitmanagement-Methode am besten ist. Am Ende erstellen Sie gemeinsam ein Ranking von Platz 1 bis Platz 5.</p>
+      </div>
+      <p><strong>Achtung:</strong> Es gibt keine richtige Lösung. Berücksichtigen Sie die Vor- und Nachteile jeder Methode.</p>
+      <h3>So arbeiten Sie</h3>
+      <ul class="task-list">
+        <li>Lesen Sie zuerst die Methoden.</li>
+        <li>Ziehen Sie danach eine geheime Rolle.</li>
+        <li>Argumentieren Sie aus der Perspektive Ihrer Rolle.</li>
+        <li>Einigen Sie sich am Ende auf ein gemeinsames Ranking.</li>
+      </ul>
+    </section>
+
+    <section class="page">
+      <h2>Schritt 2: Methoden-Karten</h2>
+      <div class="grid">
+        <article class="method-card">
+          <span class="tag">Karte A</span>
+          <h3>Prioritäten setzen</h3>
+          <p>Nicht alle Aufgaben sind gleich wichtig. Wichtige Aufgaben werden zuerst erledigt.</p>
+          <div class="advantages"><strong>Vorteile:</strong><ul><li>Wichtige Aufgaben werden nicht vergessen.</li><li>Man arbeitet zielgerichtet.</li></ul></div>
+          <div class="disadvantages"><strong>Mögliche Nachteile:</strong><ul><li>Neue dringende Aufgaben können die Planung stören.</li><li>Die Einschätzung der Prioritäten ist nicht immer einfach.</li></ul></div>
+        </article>
+
+        <article class="method-card">
+          <span class="tag">Karte B</span>
+          <h3>Aufgabenliste führen</h3>
+          <p>Alle Aufgaben werden aufgeschrieben und nach und nach erledigt.</p>
+          <div class="advantages"><strong>Vorteile:</strong><ul><li>Man behält den Überblick.</li><li>Erledigte Aufgaben sind sichtbar.</li></ul></div>
+          <div class="disadvantages"><strong>Mögliche Nachteile:</strong><ul><li>Sehr lange Listen können stressig wirken.</li><li>Die Liste muss regelmäßig aktualisiert werden.</li></ul></div>
+        </article>
+
+        <article class="method-card">
+          <span class="tag">Karte C</span>
+          <h3>Feste Zeitblöcke planen</h3>
+          <p>Für bestimmte Aufgaben werden feste Zeiten im Kalender reserviert.</p>
+          <div class="advantages"><strong>Vorteile:</strong><ul><li>Weniger Ablenkungen.</li><li>Bessere Konzentration.</li></ul></div>
+          <div class="disadvantages"><strong>Mögliche Nachteile:</strong><ul><li>Spontane Aufgaben passen oft nicht in den Plan.</li><li>Nicht in jedem Beruf leicht umsetzbar.</li></ul></div>
+        </article>
+
+        <article class="method-card">
+          <span class="tag">Karte D</span>
+          <h3>Störungen begrenzen</h3>
+          <p>E-Mails, Nachrichten und andere Unterbrechungen werden bewusst reduziert.</p>
+          <div class="advantages"><strong>Vorteile:</strong><ul><li>Mehr Konzentration.</li><li>Weniger Zeitverlust durch Unterbrechungen.</li></ul></div>
+          <div class="disadvantages"><strong>Mögliche Nachteile:</strong><ul><li>Wichtige Informationen können später ankommen.</li><li>Schnelle Reaktionen sind manchmal notwendig.</li></ul></div>
+        </article>
+
+        <article class="method-card">
+          <span class="tag">Karte E</span>
+          <h3>Realistisch planen</h3>
+          <p>Für Aufgaben wird genügend Zeit eingeplant. Zusätzlich gibt es Zeitpuffer.</p>
+          <div class="advantages"><strong>Vorteile:</strong><ul><li>Weniger Stress.</li><li>Termine werden zuverlässiger eingehalten.</li></ul></div>
+          <div class="disadvantages"><strong>Mögliche Nachteile:</strong><ul><li>Manche Aufgaben dauern dann länger als nötig.</li><li>Die verfügbare Arbeitszeit wird eventuell nicht vollständig genutzt.</li></ul></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="page">
+      <h2>Schritt 3: Geheime Rollen</h2>
+      <p>Jede Person zieht eine Rolle und verrät sie zunächst nicht.</p>
+      <div class="grid">
+        <article class="flip-card" tabindex="0" role="button" aria-label="Rolle 1 aufdecken">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="role-number">Rolle 1</div>
+              <div class="role-hint">Klicken zum Aufdecken</div>
+            </div>
+            <div class="flip-card-back">
+              <h3>Auszubildende/r</h3>
+              <ul><li>Sie sind im ersten Ausbildungsjahr.</li><li>Oft bekommen Sie kurzfristig neue Aufgaben.</li><li>Sie haben noch wenig Erfahrung.</li><li>Sie müssen Berufsschule und Arbeit organisieren.</li></ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="flip-card" tabindex="0" role="button" aria-label="Rolle 2 aufdecken">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="role-number">Rolle 2</div>
+              <div class="role-hint">Klicken zum Aufdecken</div>
+            </div>
+            <div class="flip-card-back">
+              <h3>Teamleiter/in</h3>
+              <ul><li>Sie koordinieren mehrere Mitarbeitende.</li><li>Viele Menschen kommen mit Fragen zu Ihnen.</li><li>Sie müssen Termine einhalten.</li><li>Sie haben viele Besprechungen.</li></ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="flip-card" tabindex="0" role="button" aria-label="Rolle 3 aufdecken">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="role-number">Rolle 3</div>
+              <div class="role-hint">Klicken zum Aufdecken</div>
+            </div>
+            <div class="flip-card-back">
+              <h3>Selbstständige/r</h3>
+              <ul><li>Sie organisieren Ihren Arbeitstag selbst.</li><li>Sie haben wechselnde Kunden und Projekte.</li><li>Ihr Einkommen hängt von Ihrer Produktivität ab.</li><li>Es gibt manchmal sehr viel und manchmal wenig Arbeit.</li></ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="flip-card" tabindex="0" role="button" aria-label="Rolle 4 aufdecken">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="role-number">Rolle 4</div>
+              <div class="role-hint">Klicken zum Aufdecken</div>
+            </div>
+            <div class="flip-card-back">
+              <h3>Mitarbeiter/in im Kundenservice</h3>
+              <ul><li>Kunden rufen spontan an.</li><li>Viele Aufgaben sind nicht planbar.</li><li>Schnelle Reaktionen sind wichtig.</li><li>Unterbrechungen gehören zum Arbeitsalltag.</li></ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="flip-card" tabindex="0" role="button" aria-label="Rolle 5 aufdecken">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="role-number">Rolle 5</div>
+              <div class="role-hint">Klicken zum Aufdecken</div>
+            </div>
+            <div class="flip-card-back">
+              <h3>Projektmanager/in</h3>
+              <ul><li>Sie betreuen mehrere Projekte gleichzeitig.</li><li>Viele Aufgaben haben feste Fristen.</li><li>Sie müssen mit verschiedenen Abteilungen zusammenarbeiten.</li><li>Eine gute Planung ist besonders wichtig.</li></ul>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="page">
+      <h2>Schritt 4: Phase 1 – Einzelarbeit</h2>
+      <div class="timer">⏱ 3 Minuten</div>
+      <p>Lesen Sie Ihre Rolle. Überlegen Sie:</p>
+      <ul class="task-list">
+        <li>Welche Methode passt besonders gut zu Ihrer Situation?</li>
+        <li>Welche Methode ist für Sie weniger geeignet?</li>
+        <li>Warum?</li>
+      </ul>
+      <h3>Notizen</h3>
+      <label for="notes1"><strong>Meine Argumente:</strong></label>
+      <textarea id="notes1" placeholder="Notieren Sie hier Ihre Argumente ..."></textarea>
+    </section>
+
+    <section class="page">
+      <h2>Schritt 5: Phase 2 – Diskussion</h2>
+      <div class="timer">⏱ 10–15 Minuten</div>
+      <p>Diskutieren Sie in der Gruppe. Versuchen Sie, die anderen von Ihrer Meinung zu überzeugen. Nutzen Sie Argumente aus Ihrer Rolle.</p>
+      <div class="box">
+        <strong>Diskussionsziel:</strong> Jede Person erklärt, welche Methode für ihre Rolle besonders gut oder weniger gut geeignet ist.
+      </div>
+      <h3>Beobachtungsauftrag</h3>
+      <ul class="task-list">
+        <li>Welche Argumente überzeugen Sie?</li>
+        <li>Welche Methode ist nur für bestimmte Berufe gut?</li>
+        <li>Welche Methode könnte für viele Situationen funktionieren?</li>
+      </ul>
+    </section>
+
+    <section class="page">
+      <h2>Schritt 6: Redemittel</h2>
+      <div class="grid">
+        <div class="phrase-card"><h3>Meinung äußern</h3><ul><li>Meiner Meinung nach ...</li><li>Ich denke, dass ...</li><li>Für mich ist ... besonders wichtig.</li><li>Aus meiner Sicht ...</li></ul></div>
+        <div class="phrase-card"><h3>Begründen</h3><ul><li>Der wichtigste Grund ist, dass ...</li><li>Das hilft mir, weil ...</li><li>In meinem Arbeitsalltag ...</li></ul></div>
+        <div class="phrase-card"><h3>Zustimmen</h3><ul><li>Da stimme ich zu.</li><li>Das sehe ich genauso.</li><li>Das ist ein gutes Argument.</li></ul></div>
+        <div class="phrase-card"><h3>Widersprechen</h3><ul><li>Da bin ich anderer Meinung.</li><li>Ich sehe das etwas anders.</li><li>Für meine Situation passt das nicht so gut.</li></ul></div>
+        <div class="phrase-card"><h3>Vergleichen</h3><ul><li>Im Vergleich zu ...</li><li>Für mich ist ... wichtiger als ...</li><li>Diese Methode funktioniert besser als ...</li></ul></div>
+      </div>
+    </section>
+
+    <section class="page">
+      <h2>Schritt 7: Phase 3 – Gemeinsames Ranking</h2>
+      <p>Ordnen Sie die Methoden von Platz 1 bis Platz 5.</p>
+      <table class="ranking-table">
+        <thead>
+          <tr><th>Platz</th><th>Methode</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" placeholder="Methode eintragen ..."></td></tr>
+          <tr><td>2</td><td><input type="text" placeholder="Methode eintragen ..."></td></tr>
+          <tr><td>3</td><td><input type="text" placeholder="Methode eintragen ..."></td></tr>
+          <tr><td>4</td><td><input type="text" placeholder="Methode eintragen ..."></td></tr>
+          <tr><td>5</td><td><input type="text" placeholder="Methode eintragen ..."></td></tr>
+        </tbody>
+      </table>
+      <label for="ranking-reason"><strong>Begründen Sie Ihr Ranking:</strong></label>
+      <textarea id="ranking-reason" placeholder="Unsere Begründung ..."></textarea>
+    </section>
+
+    <section class="page">
+      <h2>Schritt 8: Reflexion</h2>
+      <h3>Diskussionsfragen</h3>
+      <ul class="task-list">
+        <li>Warum war es schwierig, sich auf ein gemeinsames Ranking zu einigen?</li>
+        <li>Welche Rolle hat Ihre Meinung besonders beeinflusst?</li>
+        <li>Haben andere Personen die Methoden anders bewertet als Sie?</li>
+        <li>Gibt es eine Methode, die für alle Berufe geeignet ist?</li>
+        <li>Hat sich Ihre Meinung während der Diskussion verändert?</li>
+        <li>Was zeigt diese Aufgabe über Zeitmanagement?</li>
+      </ul>
+    </section>
+
+    <section class="page">
+      <h2>Schritt 9: Abschlussfrage</h2>
+      <div class="box">
+        <p><strong>Warum gibt es wahrscheinlich keine allgemein beste Zeitmanagement-Methode?</strong></p>
+      </div>
+      <p>Schreiben Sie gemeinsam 2–3 Sätze als Antwort.</p>
+      <textarea placeholder="Unsere gemeinsame Antwort ..."></textarea>
+      <p class="hidden-print-note">Tipp: Sie können die Seite über den Browser drucken oder als PDF speichern.</p>
+    </section>
+  </main>
+
+  <nav class="nav">
+    <button class="secondary" id="prevBtn" onclick="changePage(-1)">← Zurück</button>
+    <span class="page-indicator" id="pageIndicator">Schritt 1 von 9</span>
+    <button id="nextBtn" onclick="changePage(1)">Weiter →</button>
+  </nav>
+
+  <script>
+    const pages = Array.from(document.querySelectorAll('.page'));
+    const indicator = document.getElementById('pageIndicator');
+    const progress = document.getElementById('progress');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    let currentPage = 0;
+
+    function showPage(index) {
+      pages.forEach((page, i) => page.classList.toggle('active', i === index));
+      indicator.textContent = `Schritt ${index + 1} von ${pages.length}`;
+      progress.style.width = `${((index + 1) / pages.length) * 100}%`;
+      prevBtn.disabled = index === 0;
+      nextBtn.textContent = index === pages.length - 1 ? 'Fertig' : 'Weiter →';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function changePage(direction) {
+      const next = currentPage + direction;
+      if (next >= 0 && next < pages.length) {
+        currentPage = next;
+        showPage(currentPage);
+      }
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowRight') changePage(1);
+      if (event.key === 'ArrowLeft') changePage(-1);
+    });
+
+    document.querySelectorAll('.flip-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        card.classList.toggle('flipped');
+      });
+
+      card.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          card.classList.toggle('flipped');
+        }
+      });
+    });
+
+    showPage(currentPage);
+  </script>
+</body>
+</html>
